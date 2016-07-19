@@ -59,10 +59,8 @@ class Context(object):
 
         profile = self.config['environments'][self.environment]['profile']
         region = self.config['environments'][self.environment]['region']
-        self.session = kappa.awsclient.create_session(profile, region)
-        if recording_path:
-            self.pill = placebo.attach(self.session, recording_path)
-            self.pill.record()
+        self._session = None
+        self._recording_path = recording_path
         self.policy = kappa.policy.Policy(
             self, self.config['environments'][self.environment])
         self.role = kappa.role.Role(
@@ -127,6 +125,15 @@ class Context(object):
     @property
     def lambda_config(self):
         return self.config.get('lambda')
+
+    @property
+    def session(self):
+        if not self._session:
+            self._session = kappa.awsclient.create_session(self.profile, self.region)
+            if self._recording_path:
+                self.pill = placebo.attach(self._session, self._recording_path)
+                self.pill.record()
+        return self._session
 
     @property
     def test_dir(self):
