@@ -36,7 +36,7 @@ class SNSEventSource(kappa.event_source.base.EventSource):
                 TopicArn=self.arn)
             LOG.debug(response)
             for subscription in response['Subscriptions']:
-                if subscription['Endpoint'] == function.arn:
+                if subscription['Endpoint'] == function.arn_alias:
                     return subscription
             return None
         except Exception:
@@ -47,7 +47,7 @@ class SNSEventSource(kappa.event_source.base.EventSource):
             response = self._sns.call(
                 'subscribe',
                 TopicArn=self.arn, Protocol='lambda',
-                Endpoint=function.arn)
+                Endpoint=function.arn_alias)
             LOG.debug(response)
         except Exception:
             LOG.exception('Unable to add SNS event source')

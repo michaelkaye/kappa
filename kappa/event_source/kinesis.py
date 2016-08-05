@@ -31,7 +31,7 @@ class KinesisEventSource(kappa.event_source.base.EventSource):
         uuid = None
         response = self._lambda.call(
             'list_event_source_mappings',
-            FunctionName=function.name,
+            FunctionName=function.arn_alias,
             EventSourceArn=self.arn)
         LOG.debug(response)
         if len(response['EventSourceMappings']) > 0:
@@ -42,7 +42,7 @@ class KinesisEventSource(kappa.event_source.base.EventSource):
         try:
             response = self._lambda.call(
                 'create_event_source_mapping',
-                FunctionName=function.name,
+                FunctionName=function.arn_alias,
                 EventSourceArn=self.arn,
                 BatchSize=self.batch_size,
                 StartingPosition=self.starting_position,
@@ -69,7 +69,7 @@ class KinesisEventSource(kappa.event_source.base.EventSource):
         try:
             response = self._lambda.call(
                 'update_event_source_mapping',
-                FunctionName=function.name,
+                FunctionName=function.arn_alias,
                 Enabled=self.enabled
             )
             LOG.debug(response)
@@ -85,7 +85,7 @@ class KinesisEventSource(kappa.event_source.base.EventSource):
                     'update_event_source_mapping',
                     BatchSize=self.batch_size,
                     Enabled=self.enabled,
-                    FunctionName=function.arn)
+                    FunctionName=function.arn_alias)
                 LOG.debug(response)
             except Exception:
                 LOG.exception('Unable to update event source')

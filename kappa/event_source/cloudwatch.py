@@ -57,7 +57,7 @@ class CloudWatchEventSource(kappa.event_source.base.EventSource):
             LOG.debug(response)
             self._config['arn'] = response['RuleArn']
             response = self._lambda.call('add_permission',
-                                         FunctionName=function.name,
+                                         FunctionName=function.arn_alias,
                                          StatementId=str(uuid.uuid4()),
                                          Action='lambda:InvokeFunction',
                                          Principal='events.amazonaws.com',
@@ -67,7 +67,7 @@ class CloudWatchEventSource(kappa.event_source.base.EventSource):
                                          Rule=self._name,
                                          Targets=[{
                                              'Id': function.name,
-                                             'Arn': function.arn
+                                             'Arn': function.alias_arn
                                          }])
             LOG.debug(response)
         except Exception:
@@ -83,7 +83,7 @@ class CloudWatchEventSource(kappa.event_source.base.EventSource):
             if rule:
                 response = self._events.call('remove_targets',
                                              Rule=self._name,
-                                             Ids=[function.name])
+                                             Ids=[function.arn_alias])
                 LOG.debug(response)
                 response = self._events.call('delete_rule',
                                              Name=self._name)
@@ -92,7 +92,7 @@ class CloudWatchEventSource(kappa.event_source.base.EventSource):
             LOG.exception('Unable to remove CloudWatch event source %s', self._name)
 
     def status(self, function):
-        LOG.debug('status for CloudWatch event for %s', function.name)
+        LOG.debug('status for CloudWatch event for %s', function.arn_alias)
         return self._to_status(self.get_rule())
 
     def enable(self, function):

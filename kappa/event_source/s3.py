@@ -37,7 +37,7 @@ class S3EventSource(kappa.event_source.base.EventSource):
                 {
                     'Id': self._make_notification_id(function.name),
                     'Events': [e for e in self._config['events']],
-                    'LambdaFunctionArn': '%s:%s' % (function.arn, function._context.environment),
+                    'LambdaFunctionArn': '%s:%s' % (function.arn_alias, function._context.environment),
                 }
             ]
         }
@@ -74,7 +74,7 @@ class S3EventSource(kappa.event_source.base.EventSource):
         LOG.debug(response)
         if 'CloudFunctionConfiguration' in response:
             fn_arn = response['CloudFunctionConfiguration']['CloudFunction']
-            if fn_arn == function.arn:
+            if fn_arn == function.arn_alias:
                 del response['CloudFunctionConfiguration']
                 del response['ResponseMetadata']
                 response = self._s3.call(
